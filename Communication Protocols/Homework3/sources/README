@@ -1,0 +1,38 @@
+Gorgovan Alina-Valentina
+324CB
+
+                    Protocoale de comunicatie - Tema 3
+                            Client DNS
+
+
+Fisiere sursa: dns.c dns.h
+
+Primul pas este citirea datelor din fisierul cu servere dns, citirea se realizeaza
+cu ajutorul functiei get_servers iar serverele se salveaza intr-un array iar
+numarul de servere se retine intr-o variabila globala.
+
+Urmatorul pas este deschiderea socketului UDP si setarea optiunii de timeout
+cu ajutorul functiei setsockopt. Timeout-ul este setat la 1s.
+
+Se creeaza o instanta de tipul structurii dns_query_t care cuprinde o structura
+de tip header, una de tip question si un vector de structuri de tipul rr in care
+se vor salva raspunsurile primite de la server.
+
+In functie de tipul de query primit se actualizeaza campurile din structura
+si anume numele, care este parsat pentru a avea formatul cerut cu ajutorul
+functiei parse_name si tipul care se seteaza cu ajutorul functiei set_type.
+
+Urmatorul pas este transfomarea structurii query intr-un buffer cu functia
+create_buffer care va returna lungimea bufferului creat si va copia campurile
+din query intr-un buffer pentru a putea fi trimis catre server.
+Mai departe se trimite buffer-ul format prin socket-ul UDP, iar daca se trimite
+cu succes, se asteapta primirea unui raspuns. Daca se asteapta o secunda si nu
+se primeste niciun raspuns atunci se incearca trimiterea bufferului catre urmatorul
+server. Daca se primeste raspuns atunci se scriu datele primite in fisier.
+
+Functia buffer_to_query copiaza datele din bufferul primit intr-o structura
+de tipul query si citeste raspunsurile primite in campul records.
+Mai departe, in functia write_aux si write_data raspunsurile sunt afisate precum
+era specificat in enunt in functie de tipul acestora.
+Functia write_message scrie in fisierul message.log query-urile trimise catre
+server.
