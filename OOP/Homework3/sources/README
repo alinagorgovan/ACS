@@ -1,0 +1,18 @@
+Gorgovan Alina-Valentina
+324CB
+
+Tema3-POO
+
+Conform cerintei am implementat labirintul in clasa Maze. Labirintul este de forma unei matrice de celule de tipul Cell cu dimensiunile height si weight. Fiecare celula din labirint este o instanta a clasei ce reprezinta tipul sau: WallCell, RoadCell, ExitCell sau EdgeCell.
+Toate tipurile de celule extind clasa abstracta Cell. Informatiile retinute intr-o celula sunt: coordonatele x si y, directia si numarul de visite(pentru task1) si costul si parintele(pentru task2) cat si un camp ce spune daca celula a fost vizitata sau nu.
+Construirea labirintului de celule din fisierul de input se realizeaza in metoda buildMaze din clasa Maze cu ajutorul CellFactory, metoda ce este apelata in main. Dupa, in functie de argumentul primit, metoda solveMaze din clasa Maze va apela metoda potrivita pentru rezolvare.
+
+Task1
+
+Clasa Dubluve descrie functionalitatea eroului. Acesta trebuie sa gaseasca dintre vecinii sai pe cel care respecta ordinea R, F, L, B si are numar minim de vizite.
+Pentru asta am contruit 4 metode getRight, getLeft, getFront si getBack care returneaza vecinii in functie de directia de deplasare a eroului. In cazul in care eroul nu are un vecin(se afla pe o margine a labirintului) atunci este intors un obiect de tipul EdgeCell. Urmatorul pas e verificarea lor cu ajutorul metodei valid pentru a introduce in arraylist doar vecinii unde se poate face mutarea. Lista e sortata cu ajutorul comparatorului. Daca iesirea e un vecin al celulei curente atunci se alege acela ca mutare. Altfel, se ia primul element din arraylist. Se fac actualizari asupra celulei currente si se repeta pasii.
+Fiecare pas este introdus intr-un arraylist si afisat dupa gasirea iesirii.
+
+Task2
+
+Pentru gasirea celui mai scurt drum dintre start si exit am implementat o varianta a algoritmului lui Lee. Algoritmul foloseste o coada si un arraylist. Primul pas este sa introducem in coada celule de pornire si anume celula start. Dupa, cat timp coada nu este goala, se verifica vecinii care pot fi vizitati si nu au mai fost vizitati inainte carora le se actualizeaza costul si parintele dupa care sunt introdusi in coada. Daca se gaseste exit bucla se opreste si toti pasii facuti se introduc intr-un arraylist pentru a fi afisati.

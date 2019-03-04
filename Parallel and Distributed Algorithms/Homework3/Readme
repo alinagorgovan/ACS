@@ -1,0 +1,33 @@
+Gorgovan Alina-Valentina
+334CB
+
+Algoritmi Paraleli si Distribuiti - Tema 3
+
+Prima parte a temei este reprezentat de citirea si scrierea din fisier. De acest
+lucru se ocupa doar procesul cu rankul 0. Citirea se face direct intr-un buffer
+din care se imparte ulterior linii din imagine si celorlalte procese.
+Impartirea se face egal si fiecare proces primeste liniile pe care trebuie sa
+aplice filtrele alaturi de linia de deasupra si linia de sub portiunea de imagine.
+Procesul nu modifica deloc  cele doua linii primite in plus, le foloseste doar
+pentru calculul pixelilor conform formulelor.
+
+Dupa ce un proces primeste bufferul cu pixeli, il transforma intr-o matrice
+pentru a putea indexa mai usor elementele folosite pentru calcul.
+La calculul pixelilor, rezultatele se pun mai intai intr-o matrice temporara
+pentru a nu afecta rezultatele calcularii urmatorilor pixeli.
+
+Dupa ce fiecare proces aplica filtrul curent pe bucata lui de imagine, pentru a
+aplica uratorul filtru e nevoie de noile borduri calculate de vecinii procesului.
+Pentru a realiza cu usurinta modificarea primei linii si  ultimei linii din matrice
+am folosit functia MPI_Sendrecv intre procesele vecine. Astfel ca fiecare proces
+trimite liniile modificate de acesta care reprezinte borduri catre procesele vecine.
+
+Dupa actualizarea bordurilor, se repeta procesul de aplicare pentru urmatorul filtru
+primit. Dupa terminarea aplicarii tuturor filtrelor, trebuie trimise din toate
+procesele catre procesul cu rank 0 modificarile aduse asupra imaginii.
+Astfel ca, din matrice fiecarui proces se formeaza un buffer din care fac MPI_Send doar
+la liniile modificate de procesul curent. Adica fara prima si ultima linie.
+In procesul cu rank 0 se face MPI_Recv la adresa de unde s-au si trimis initial
+datele, suprascriindu-se imaginea initiala cu cea modificata.
+
+La final, in urma asamblarii se va obtine matricea cu toate filtrele aplicate.

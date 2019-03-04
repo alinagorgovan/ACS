@@ -1,0 +1,99 @@
+Gorgovan Alina-Valentina
+324CB
+
+                Protocoale de comunicatie - Tema 2
+             Sistem monetar de tipul Internet Banking
+
+Fisiere : server.c, client.c, utils.h .
+
+Primul pas in rezolvarea temei a fost parcurgerea datelor din fisierul de input
+si stocarea lor astfel incat toate datele utilizatorilor sa fie accesibile
+cu usurinta si rapiditate.
+Structura User cuprinde toate datele unui cont din sistemul nostru si anume:
+nume, prenume, pin, parola, sold, o variabila care se seteaza cand cineva se
+conecteaza la contul curent, o variabila care ne spune daca contul ete blocat,
+un contor pentru incercarile de conectare si un id care reprezinta socket-ul
+clientului care s-a conectat la contul respectiv.
+Toate conturile din sistem se vor retine in vectorul users.
+
+Urmatorul pas este realizarea conexiunii server-client print TCP si UDP.
+Pentru TCP am folosit functiile start_serverTCP() pentru server si start_clientTCP
+pentru client, functii in care se realizeaza conexiunile necesare  si care
+intorc file descriptor-ul socketilor deschisi.
+Pentru UDP, functiile start_clientUDP() si start_serverUDP() deschid cate un
+socket UDP iar functiile get_udp_addr_client() si get_udp_addr_server() returneaza
+cate o structura de tipul sockaddr_in cu ajutorul caruia se trimit mesajele
+prin UDP.
+
+In server, dupa adaugarea socketilor UDP, TCP si stdin in multimea read_fds
+se va apela in bucla functia select care seteaza socketii prin care vin mesaje
+la acel moment de timp. Cele 4 cazuri de setare de socket sunt:
+
+1. Socket-ul TCP: daca s-a primit ceva pe acest socket inseamna ca un client
+incearca sa se conecteze la server iar acesta va incerca sa il accepte.
+Noul client este adaugat in multimea de socketi read_fds.
+
+2. STDIN: daca s-a introdus de la tastatura vreo comanda atunci socket-ul va fi
+setat. Singura comanda posibila este "quit", iar in cazul acestei comenzi se
+trimite un mesaj de anunt catre toti clientii deschisi dupa cer acetia vor
+fi inchisi si scosi din multimea read_fds. La sfarsit se seteaza flag-ul de iesire
+si programul se va inchide.
+
+3. Socket-ul UDP: Pe acest socket vor veni sigur doar comenzi de tipul unlock.
+Daca mesajul primit contine cuvantul unlock atunci string-ul primit se va parsa
+pentru obtinerea numarului contului catre care se vrea facuta deblocarea,
+urmand sa se faca verificari: daca exista in sistem cardul respectiv sau daca
+cardul este blocat. Daca totul e ok, se va cere parola secreta.
+Daca mesajul primit nu contine cuvantul unlock atunci inseamna ca s-a primit
+contul si parola pentru deblocare. Se fac din nou verificarile pentru a vedea
+ca daca contul trebuie deblocat si daca e totul ok se ajunge la pasul unde
+se verifica parola. Daca aceasta e corecta atunci contul e deblocat.
+
+4. Socket client: Toate comezile primite de la clienti vor veni pe socketii
+acestora.
+Daca s-a primit comanda de login atunci se va apela functia login() care va
+realiza logarea utilizatorului. Comanda primita este parsata pentru a obtine
+datele de login. Este cautat in sistem cardul respectiv si daca se trece de
+verificari utilizatorul va fi logat.
+Daca s-a primit comanda de logout, se cauta contul la care este conectat clientul
+dupa care acesta va fi marcat ca logout si se va trimite un raspuns de confirmare.
+Daca s-a primit comanda quit, este cautat contul care este conectat clientul
+curent si daca s-a gasit va fi delogat, altfel socket-ul va fi sters din
+multimea read_fds.
+Pentru comanda listsold, dupa gasirea contului conectat aceasta va intoarce un
+sir care contine soldul curent si va fi trimis catre client.
+Pentru comanda transfer este  apelata functia cu acelasi nume. In functia transfer
+se obtin din mesaj numarul cardului destinatar si suma dorita dupa care se
+verifica daca destinatarul este valid si daca cel care trimite are fonduri
+suficiente pentru a realiza tranzactia. Daca se trece de verificari se trimite
+un mesaj catre client si se asteapra confirmarea tranzactiei. Daca clientul a
+confirmat atunci tranzactia se realizeaza cu succes.
+
+In client, prima parte seamana ca cea din server, se adauga socketii in multimea
+read_fds si cu ajutorul functiei select se vor seta cei pe care vin mesaje.
+Aici sunt 3 cazuri:
+
+1. STDIN: prin acesta se vor transmite comenzile primite de la tastatura.
+Comanda login: Inainte de transmiterea sa se verifica daca mai exista o alta
+sesiune deschisa iar daca nu, comanda se va trimite catre server. Se va seta
+variabila last_card cu cardul primit.
+Comanda quit: Se trimite catre server ca sa il anunte ca se va inchide dupa care
+se opreste executia.
+Comanda unlock: Se va seta in client un flag pentru a anunta la urmatoarea iteratie
+ca s-a transmis anterior o comanda de unlock dupa care se trimite catre server
+comanda "unlock" alaturi de ultimul card catre care s-a incercat logarea.
+Daca flagul unlock_request este setat atunci se va apenda la parola primita
+numarul cardului catre care se incearca deblocarea si se va trimite catre server.
+Orice alta comanda primita de la tastatura care nu e "login" si cand nu exista vreo
+sesiune deschisa va returna eroare.
+
+2. Socket UDP: Orice se primeste pe socketul UDP se scrie in fisier. Daca s-a
+primit mesajul "Trimite parola" atunci se va seta flag-ul unlock_request, altfel
+acesta va fi resetat la 0, insemnand ca ori s-a reusit deblocarea ori a aparut
+vreo eroare.
+
+3. socket_TCP: Orice se primeste pe socketul TCP se scrie in fisier. Daca
+s-a primit mesajul "welcome" atunci inseamna ca s-a reusit logarea si acum
+clientul este conectat la un cont deci se seteaza flag-ul open_session.
+Altfel, daca s-a primit mesajul "Deconectare de la bancomat" inseamna ca
+delogarea s-a realizat cu succes si deci nu mai avem vreo sesiune deschisa.

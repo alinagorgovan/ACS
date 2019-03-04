@@ -1,0 +1,35 @@
+functii
+
+ksender:
+
+int send_package(package* p)
+
+int send_file(char* filename, package* init_s)
+
+main
+
+
+kreceiver:
+msg* receive_package()
+
+main
+
+package.h:
+
+package* init_package()
+
+data_s* init_data_s()
+
+package* new_s_package(int seq)
+
+package* new_f_package(char* filename, int seq, char mark)
+
+package* new_d_package(int size, int seq, char* data, char mark)
+
+package* new_b_z_y_n_package(int seq, char type, char mark)
+
+msg* package_to_msg(package* p)
+
+msg *send_ack_for_received_message(msg *received) {
+
+msg *send_nack_for_received_message(msg *received)

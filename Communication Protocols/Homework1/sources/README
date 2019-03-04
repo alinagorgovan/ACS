@@ -1,0 +1,44 @@
+Gorgovan Alina-Valentina
+324CB
+
+PROTOCOALE DE COMUNICATIE
+
+Tema 1 - Mini Kermit
+
+Fisiere: ksender.c kreceiver.c lib.h package.h
+
+Primul pas in rezolvarea temei a fost sa implementez strucurile package si data_s
+conform cerintelor. Crearea pachetelor de diferite tipuri se fac cu functiile
+corespunzatoare new_s_package, new_d_package, new_f_package, new_b_z_y_n_package.
+
+Pentru trimiterea fisierelor, in functia main din ksender se apeleaza pentru fiecare
+fisier primit ca parametru functia send_file.
+In cadrul functiei send_file primul pas este deschiderea fisierului si calculul
+dimensiunii acestuia. Mai departe se trimite pachetul de tip F continand numele fisierului
+urmat de toate datele din acesta impachetate in pachete de tip D. La sfarsit se
+trimite un pachet de tip Z care sa marcheze sfarsitul pachetului.
+
+Trimiterea pachetelor se face cu ajutorul functiei send_package in cadrul caruia
+maesajul este convertit in structura de tip msg cu apelandu-se functia
+package_to_msg. Se incearca transmiterea fisierului dupa care se asteapta un mesaj.
+Daca dupa 3 incercari nu se primeste niciun raspuns atunci se va intoarce NULL.
+Daca s-a primit raspuns si secventa acestuia corespunde cu cea asteaptata atunci
+se verifica tipul de raspuns, ACK sau NACK. Daca s-a primit ACK, transmiterea
+pachetului se considera terminata si se iese din functie. Daca s-a primit NACK,
+se actualizeaza pachetul cu secventa potrivita si se retrimite pana la primirea
+unui raspuns pozitiv.
+
+In fisierul kreceiver, in functia main se astepta primirea pachetelor cat timp
+nu se primeste timeout sau este primit un pachet de tip B care marcheaza inchiderea
+transmisiunii.  Mesajele sunt primite cu ajutorul functiei receive_package() care
+returneaza mesajul primit. In aceasta functie se asteapta un mesaj 5s de maxim 3 ori.
+Daca secventa primita coincide cu cea asteptata atunci se caluleaza crc-ul pe
+payload si se compara cu crc-ul primit. Daca corespund atunci se trimite mesaj
+de tip ACK cu secventa consecutiva, altfel se trimite mesaj NACK apelandu-se
+functii corespunzatoare din package.h .
+
+Daca se primeste un pachet de tip F atunci se deschide pentru scrieren un fisier
+cu numele din pachetul primit la care se concateneaza string-ul "recv_".
+Daca se primeste pachet de tip D atunci datele continute de acestea sunt scrise
+in fisierul deschis la acel moment.
+Daca se primeste pachet de tip Z atunci se inchide fisierul curent.
