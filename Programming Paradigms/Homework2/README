@@ -1,0 +1,62 @@
+Gorgovan Alina-Valentina
+324CB
+
+Paradigme de Programare - Tema 2 - Prolog
+
+Pentru a calcula drumul minim am implementat algoritmul BFS.
+
+Pentru predicatul getPath am scris cate o clauza in care verific cu ce unifica
+argumentul Formula.
+Daca Formula unfifica cu valid atunci apelez predicatul bfs cu parametrii necesari
+gasirii drumului, bfs apeleaza mai departe predicatul bfs_aux care primeste
+aceeasi urmatorii parametri:
+    - From(nodul de pornire)
+    - O lista de tupluri de tipul (Nod, Parinte), pe care o folosesc cu
+    functionalitatea de coada, initial primul element va fi nodul de plecare
+    - To (nodul destinatie)
+    - o lista in care voi introduce nodurile vizitate, initial va fi lista vida
+    - Path (variabila ]n care se returneaza drumul)
+
+Predicatul bfs_aux reprezinta implementarea propriu-zisa a algoritmului.
+In cazul in care se valideaza prima clauza si nodul care urmeaza sa fie vizitat
+corespunde cu nodul destinatie, atunci se reconstruieste calea si se opreste
+incercarea de resatisfacere a predicatului.
+Mai departe, se verifica daca nodul curent a mai fost vizitat, iar daca conditia
+este adevarata se continua executia fara a se mai lua nodul in considerare.
+Altfel, pentru nodul curent care nu a mai fost vizitat inainte, cu ajutorul
+predicatului findall din Prolog se returneaza lista cu toti vecinii nodului
+curent. Lista este adaugata la sfarsitul cozii si se reapeleaza predicatul
+bfs_aux cu noua coada formata si cu adaugarea nodului in lista de noduri vizitate.
+
+Pentru reconstruirea drumului am scris predicatul reconstruct_path care reconstruieste
+calea plecand de la un nod si mergand din parinte in parinte pana intalneste
+nodul initial.
+
+Daca formula unfifica cu global atunci am modificat putin algoritmul astfel incat
+functia findall sa returneze o lista doar cu nodurile vecine care sunt de culoarea
+necesara.
+
+Pentru formula next, verific mai intai daca culoarea respectiva exista in culorile
+nodurilor din graf iar daca exista in predicatul bfs_auxNext, pentru primul nod,
+extrag doar vecinii care au culoarea respectiva iar daca lista returnata nu e
+goala, continui sa explorez urmatoarele noduri cu predicatul de bfs simplu, bfs_aux.
+
+Pentru formula not, verific daca  primul nod are culoarea ceruta, daca conditia
+este indeplinita atunci calculez drumul aplicand bfs simplu.
+
+In cazul formulei and, apelez getPath() pentru ambele formule si daca rezultatele
+primite unifica, atunci intorc drumul obtinut. Asemanator se realizeaza si
+formula or, unde se returneaza rezultatul valid dintre cele doua obtinute.
+
+Pentru formula Future, am realizat un nou predicat bfs_auxFuture, care extrage
+mai intai vecinii care au culoarea ceruta, daca nu se gasesc vecini de culoarea
+respectiva se va calcula lista tuturor vecinilor si se va reapela predicatul
+bfs_auxFuture.
+Altfel, daca lista cu vecini de culoarea ceruta nu este vida, se va considera
+ca a fost gasit un nod de culoarea respectiva si se ca continua gasirea drumului
+in continuare fara alte constrangeri.
+
+Daca formula nu unifica cu niciuna dintre cele enumerate mai sus inseamna ca s-a
+primit o Culoare cu care trebuie sa unifice culoarea primului nod.  Mai intai,
+verific daca culoarea exista in graf si dupa verific daca primul nod are culoarea
+respectiva. Daca conditiile sunt indeplinite se calculeaza mai departe drumul minim.

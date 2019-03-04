@@ -1,0 +1,74 @@
+Gorgovan Alina-Valentina
+324CB
+
+Paradigme de Programare - Tema 1 - Haskell
+
+Partea 1: solveSimple
+
+Pentru inceput cerinta dorea gasirea drumului de lungime minima intre orasele 1
+si n. Am ales sa folosesc algoritmul Bellman Ford care returneaza toate drumurile
+de cost minim intre un nod fix t si restul nodurilor din graf in cel mult n-1
+muchii. Am ales sa folosesc acest algoritm pentru ca este unul de Programare
+Dinamica si are complexitatea mai mica fata de altele din aceeasi categorie
+adica O(m * n) unde m e numarul de muchii si n numarul de noduri.
+
+Astfel ca un element din matrice d[v][i] reprezinta costul minim pentru a ajunge
+din nodul v in nodul t (fixat) in cel mult i pasi. Alaturi de acest cost am creat
+un tuplu in care am salvat si nodul in care urmeaza sa se faca deplasarea din
+nodul curent.
+
+Cazurile de baza:
+1. Daca i = 0 (0 muchii) atunci costul de a ajunge dintr-un nod in altul se
+initializeaza cu infinit exceptand cazul in care v == t deoarece e imposibil
+sa ajungi dintr-un nod in altul diferit fara sa parcurgi nicio muchie.
+Deci d[v][i] = infinit, pentru v != t.
+2. Pentru a ajunge din nodul t in nodul t costul e clar 0 indiferent de i,
+numarul de muchii.
+Deci d[t][i] = 0, oricare ar fi i.
+
+Recurenta : d[v][i] = minim (len (v, x) + d[x][i-1]), unde x e nod adiacent lui v.
+Explicatia este ca din nodul curent v, se cauta toti vecinii si se alege cel
+catre care adunandu-se lungimea muchiei dintre cele doua noduri la costul
+calculat la un pas anterior pentru nodul x se obtine o suma minima a lungimilor.
+
+In Haskell, algoritmul se implementeaza simplu cu ajutorul evaluarii lenese.
+Daca sunt respectate anumite conditii de terminare si se acceseaza o pozitie
+anume din matrice atunci aceasta incepe sa fie calculata folosind functia
+auxiliara -cost v i- ai carei parametrii reprezinta nodul si numarul de muchii
+in care trebuie calculat drumul. Pentru a calcula recurenta am extras cu
+ajutorul functiei foldr nodurile adiacente nodului v si lungimea muchiilor
+respective. Peste acestea am aplicat cu map o functie care aduna la lungimea
+muchiei costul pentru nodul respectiv si la final cu ajutorul foldr si al
+functiei minim am gasit minimul din lista de noduri adiacente.
+Conditiile de return puse sunt ca numarul de muchii din graf sa fie diferit de 0
+si sa existe drum intre cele doua noduri 1 si n (adica costul dintre acestea
+sa fie diferit de infinit).
+
+la sfarsit se returneaza drumul de noduri reconstruit cu functia getPath
+si costul de pe pozitia (1, n-1) care inseamna costul drumului de la 1 la n
+in cel mult n-1 muchii.
+
+Partea 2: solveCosts
+
+La aceasta parte a temei am ales sa folosesc acelasi algoritm ca la partea precedenta
+aducandu-i niste modificari. Calculul matricii si al recurentelor este acelasi
+doar ca pentru alegerea minimului am folosit alta functie care in caz de egalitate
+intre lungimile traseelor va tine cont de taxele de intrare in orasele respective
+si il va intoarce pe cel cu taxa de intrare mai mica.
+
+Daca se trece de conditiile pentru suma initiala, numarul de muchii si existenta
+drumului intre 1 si n, atunci se ajunge la partea a doua a programului unde se
+reconstruieste drumul ales si se formeaza lista cu evolutia sumei de bani
+pe parcursul drumului.
+
+Drumul de noduri se reconstruieste cu ajutorul functiei getPath dupa care
+cu ajutorul functiei gettaxes se extrag din lista initiala cu taxe o lista
+ce contine doar taxele pentru nodurile ce formeaza drumul.
+Se calculeaza suma tuturor taxelor pentru a se vedea daca aceasta a depasit
+suma initiala de bani, urmand sa se construiasca un Array pentru calcularea
+evolutiei sumei de bani pe parcursul traseului. Prima pozitie se initializeaza
+cu sum si pentru restul pozitiilor se calculeaza diferenta intre pozitia
+anterioara si taxa curenta.
+
+Daca suma cheltuita a fost suficienta atunci folosind zipWith am creat lista
+de tupluri (Nod, Suma ramasa) pe care am intors-o alaturi de costul drumului.
